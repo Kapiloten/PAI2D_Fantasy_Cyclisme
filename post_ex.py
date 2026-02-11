@@ -263,9 +263,14 @@ prob += pulp.lpSum(c[p] * x[p][0] for p in P) + r[0] == B, "Budget_Initial"
 for t in T:
     prob += pulp.lpSum(x[p][t] for p in P) == 14
 
+# Ajout pour l'instant pour avoir qu'une seule équipe opt
+for p in P:
+    prob += x[p][10] == x[p][0]
+    prob += x[p][15] == x[p][0]
+
 
 # Résolution du problème !!
-status = prob.solve(pulp.PULP_CBC_CMD(msg=True))
+status = prob.solve(pulp.PULP_CBC_CMD(msg=False))
 # print("Status :", pulp.LpStatus[status])
 
 
@@ -285,11 +290,11 @@ for var, coef in expr.items():
 
 def equipe_opt(t):
     return [p for p in P if pulp.value(x[p][t]) == 1]
-for t in T:
-    team = equipe_opt(t)
-    print(f"\nÉquipe optimale à la période t={t}")
-    for p in team:
-        print(p)
+
+team = equipe_opt(15)
+print(f"\nÉquipe optimale à la période t={t}")
+for p in team:
+    print(f"{p} | {points.get((p, 22), 0)}")
 
 
 
