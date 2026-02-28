@@ -325,8 +325,6 @@ for p in team:
 
 
 
-
-
 """ Somme ≤ variable doublement indexée
 w = pulp.LpVariable.dicts("w", (G, T), lowBound=0) 
 for g in G: 
