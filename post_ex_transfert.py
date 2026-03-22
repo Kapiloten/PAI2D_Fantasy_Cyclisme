@@ -1,13 +1,14 @@
 import pulp
 import pandas as pd
 import math
+import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
 
 
+import trait_donnees
 
-#import trait_donnees
-
-#points, E_final = trait_donnees.data_tour_de_france()
-points, E_final = data_tour_de_france()
+points, E_final = trait_donnees.data_tour_de_france()
+# points, E_final = data_tour_de_france()
 
 
 def period(e):
@@ -29,6 +30,8 @@ prob = pulp.LpProblem("Z", pulp.LpMaximize)
 # Les constantes du problèmes
 # Le Budget initial
 B = 140
+# Taille de l'équipe
+taille_eq = 14
 # Les périodes
 T = [0, 10, 15] # 3 périodes (0 est pour l'équipe initiale)
 # Les événements
@@ -279,7 +282,7 @@ prob += pulp.lpSum(c[p] * x[p][0] for p in P) + r[0] == B, "Budget_Initial"
 
 # Nombre de coureurs à chaque période
 for t in T:
-    prob += pulp.lpSum(x[p][t] for p in P) == 14
+    prob += pulp.lpSum(x[p][t] for p in P) == taille_eq
 
 
 # Résolution du problème !!
@@ -308,6 +311,46 @@ team = equipe_opt(15)
 print(f"\nÉquipe optimale à la période t={t}")
 for p in team:
     print(f"{p} | {points.get((p, 22), 0)}")
+
+hist_per = 0
+# 1. Identifier les coureurs choisis par le solveur à la période hist_per
+equipe_initiale = [p for p in P if pulp.value(x[p][hist_per]) == 1]
+
+top = int(len(P)/3)
+# 2. Préparer les données pour le Top top
+data_list = []
+for p in P:
+    total_pts = sum(points.get((p, e), 0) for e in E)
+    if c[p] > 0:
+        data_list.append({'Nom': p, 'Ratio': total_pts / c[p]})
+
+df_plot = pd.DataFrame(data_list).sort_values(by='Ratio', ascending=False).head(top)
+
+# 3. Définir les couleurs (ROUGE pour les sélectionnés, BLEU pour les autres)
+couleurs = ['red' if nom in equipe_initiale else 'skyblue' for nom in df_plot['Nom']]
+
+
+# 4. Création du graphique
+plt.figure(figsize=(12, 8))
+plt.bar(df_plot['Nom'], df_plot['Ratio'], color=couleurs, edgecolor='black', linewidth=0.8)
+
+plt.xticks(rotation=90)
+plt.ylabel('Points / Coût')
+plt.title(f'Affichage des Top {top} Coureurs | Taille de l\'équipe {taille_eq}')
+
+elements_legende = [
+    Line2D([0], [0], marker='s', color='w', label='Sélectionné', markerfacecolor='red', markersize=10),
+    Line2D([0], [0], marker='s', color='w', label='Non sélectionné', markerfacecolor='blue', markersize=10)
+]
+
+plt.legend(handles=elements_legende, title="Statut Coureur :", loc='upper right')
+
+plt.grid(axis='y', linestyle='--', alpha=0.3)
+for i, val in enumerate(df_plot['Ratio']):
+    plt.text(i, val, round(val, 2), horizontalalignment='center', verticalalignment='bottom', fontsize = 8, rotation = 60)
+plt.tight_layout()
+
+plt.show()
 
 #Code pour visualiser les transferts à chaque étapes
 """
