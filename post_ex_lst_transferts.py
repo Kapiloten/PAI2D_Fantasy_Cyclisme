@@ -278,11 +278,11 @@ vente = pulp.LpVariable.dicts("vente", (P, T), 0, 1, cat="Binary")
 for p in P:
     # période 10
     if p not in transferts_10:
-        prob += achat[p][10] == 0
+        prob += vente[p][10] == 0
 
     # période 15
     if p not in transferts_15:
-        prob += achat[p][15] == 0
+        prob += vente[p][15] == 0
 
 
 ## Variables de décision
@@ -290,6 +290,25 @@ for p in P:
 r = pulp.LpVariable.dicts("r", T, lowBound=0) # >=0
 # le choix d'un coureur p à la période t
 x = pulp.LpVariable.dicts("x", (P, T), cat=pulp.LpBinary)
+
+
+'''
+* Les coureurs ayant abandonné avant la première fenêtre ne peuvent pas être
+présents après la période 0 :
+xr,1 = 0, xr,2 = 0
+'''
+'''
+∀r ∈ A10.
+* Les coureurs ayant abandonné entre la première et la seconde fenêtre ne
+peuvent pas être présents après la période 1 :
+'''
+for p in P :
+    if p in transferts_10 :
+        prob += x[p][10] == 0
+        prob += x[p][15] == 0
+    if p in transferts_15 and p not in transferts_15 :
+        prob += x[p][15] == 0
+
 
 
 # z = pulp.LpVariable.dicts("z", (P, T), cat=pulp.LpBinary)
