@@ -292,6 +292,7 @@ r = pulp.LpVariable.dicts("r", T, lowBound=0) # >=0
 x = pulp.LpVariable.dicts("x", (P, T), cat=pulp.LpBinary)
 
 
+
 '''
 * Les coureurs ayant abandonné avant la première fenêtre ne peuvent pas être
 présents après la période 0 :
@@ -308,8 +309,6 @@ for p in P :
         prob += x[p][15] == 0
     if p in transferts_15 and p not in transferts_15 :
         prob += x[p][15] == 0
-
-
 
 # z = pulp.LpVariable.dicts("z", (P, T), cat=pulp.LpBinary)
 
