@@ -278,11 +278,11 @@ vente = pulp.LpVariable.dicts("vente", (P, T), 0, 1, cat="Binary")
 for p in P:
     # période 10
     if p not in transferts_10:
-        prob += achat[p][10] == 0
+        prob += vente[p][10] == 0
 
     # période 15
     if p not in transferts_15:
-        prob += achat[p][15] == 0
+        prob += vente[p][15] == 0
 
 
 ## Variables de décision
