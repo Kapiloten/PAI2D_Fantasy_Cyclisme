@@ -307,7 +307,7 @@ for p in P :
     if p in transferts_10 :
         prob += x[p][10] == 0
         prob += x[p][15] == 0
-    if p in transferts_15 and p not in transferts_15 :
+    if p in transferts_15 and p not in transferts_10 :
         prob += x[p][15] == 0
 
 # z = pulp.LpVariable.dicts("z", (P, T), cat=pulp.LpBinary)
@@ -372,7 +372,11 @@ for var, coef in expr.items():
 def equipe_opt(t):
     return [p for p in P if pulp.value(x[p][t]) == 1]
 
-team = equipe_opt(15)
+# for t in [0,10,15]:
+#     team = equipe_opt(t)
+#     print(team)
+# exit()
+team = equipe_opt(t)
 print(f"\nÉquipe optimale à la période t={t}")
 for p in team:
     print(f"{p} | {points.get((p, 22), 0)}")
@@ -512,3 +516,37 @@ total_global += bonus_total
 
 print(f"\nTotal recalculé sans la solution du programme linéaire : {total_global}")
 print(f"Valeur de la solution du programme linéaire : {pulp.value(prob.objective)}")
+
+"""
+# un csv
+lignes = []
+
+for t in T:
+    for p in P:
+        points_periode = sum(
+            points.get((p, e), 0)
+            for e in E if period(e) == t
+        )
+
+        points_restants = sum(
+            points.get((p, e), 0)
+            for e in E if period(e) >= t
+        )
+
+        bonus_final = points.get((p, E_final), 0) if t == 15 else 0
+
+        lignes.append({
+            "coureur": p,
+            "periode": t,
+            "selectionne": int(pulp.value(x[p][t])),
+            "cout_periode": c[p] if t == 0 else c_augmentation[p],
+            "points_periode": points_periode,
+            "points_restants": points_restants,
+            "bonus_final": bonus_final,
+            "transferrable_10": int(p in transferts_10),
+            "transferrable_15": int(p in transferts_15),
+        })
+
+df = pd.DataFrame(lignes)
+df.to_csv("valeurs_coureurs_par_periode.csv", index=False, encoding="utf-8-sig")
+"""

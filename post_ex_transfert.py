@@ -312,7 +312,7 @@ print(f"\nÉquipe optimale à la période t={t}")
 for p in team:
     print(f"{p} | {points.get((p, 22), 0)}")
 
-hist_per = 0
+hist_per = 15
 # 1. Identifier les coureurs choisis par le solveur à la période hist_per
 equipe_initiale = [p for p in P if pulp.value(x[p][hist_per]) == 1]
 
@@ -350,6 +350,7 @@ for i, val in enumerate(df_plot['Ratio']):
     plt.text(i, val, round(val, 2), horizontalalignment='center', verticalalignment='bottom', fontsize = 8, rotation = 60)
 plt.tight_layout()
 
+# plt.savefig("Profit_sur_cout.png")
 plt.show()
 
 #Code pour visualiser les transferts à chaque étapes

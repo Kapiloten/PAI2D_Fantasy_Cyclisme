@@ -4,7 +4,8 @@ import math
 
 
 
-df = pd.read_csv(r"PAI2D_Fantasy_Cyclisme-master/tdf_rankings/valeurs.csv")
+# df = pd.read_csv(r"PAI2D_Fantasy_Cyclisme-master/tdf_rankings/valeurs.csv")
+df = pd.read_csv(r"./tdf_rankings/valeurs.csv")
 
 # print(df.head())
 # print(df.info())
@@ -36,7 +37,8 @@ for k in range(3):
             break
         e += 1  # étape courante = 1..21
         # print(k, j, e)
-        df_stage = pd.read_csv(r"PAI2D_Fantasy_Cyclisme-master/tdf_rankings/stage_" + str(k) + str(j) + "_2025.csv")
+        # df_stage = pd.read_csv(r"PAI2D_Fantasy_Cyclisme-master/tdf_rankings/stage_" + str(k) + str(j) + "_2025.csv")
+        df_stage = pd.read_csv(r"./tdf_rankings/stage_" + str(k) + str(j) + "_2025.csv")
         for i in range(min(len(df_stage), 20)):
             coureur = df_stage.loc[i, "Rider"]
             points[(coureur, e)] = points.get((coureur, e), 0) + points_top_20[i]
@@ -47,7 +49,8 @@ for k in range(3):
 
 # -----------------------------------------------------------------------------------
 
-df_bonus = pd.read_csv(r"PAI2D_Fantasy_Cyclisme-master/tdf_rankings/maillots.csv")
+# df_bonus = pd.read_csv(r"PAI2D_Fantasy_Cyclisme-master/tdf_rankings/maillots.csv")
+df_bonus = pd.read_csv(r"./tdf_rankings/maillots.csv")
 bonus_jaune = 8
 bonus_vert = 5
 bonus_pois = 5
@@ -96,7 +99,8 @@ for i in range(23) : # i+1 jouera le rôle de e
 # -----------------------------------------------------------------------------------
 # Points du classement final par maillot
 
-df_final = pd.read_csv(r"PAI2D_Fantasy_Cyclisme-master/tdf_rankings/final.csv")
+# df_final = pd.read_csv(r"PAI2D_Fantasy_Cyclisme-master/tdf_rankings/final.csv")
+df_final = pd.read_csv(r"./tdf_rankings/final.csv")
 #df_final = pd.read_csv(r"PAI2D_Fantasy_Cyclisme-master/tdf_rankings/final.csv")
 
 # étape pour le classement final par maillot
