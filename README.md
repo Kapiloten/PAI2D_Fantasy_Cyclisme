@@ -39,7 +39,6 @@ L'objectif du projet est donc double :
 |-- anciennes_versions/   # Anciens scripts et prototypes conservés à part
 |-- requirements.txt      # Dépendances Python à installer avec pip
 |-- README.md             # Présentation et mode d'emploi du projet
-|-- .gitignore            # Fichiers ignorés par Git
 `-- .python-version       # Version Python utilisée pour le projet
 ```
 
