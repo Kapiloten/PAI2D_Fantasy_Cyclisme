@@ -1005,9 +1005,11 @@ def tableau_sensibilite_affichage(df, periode_cible, avec_rang=False):
         return df
 
     affichage = df.copy()
+    type_ligne = affichage["Type"].iloc[0] if "Type" in affichage.columns else ""
+    colonne_ecart = "Points à gagner" if type_ligne == "Non choisi" else "La perte de score si interdiction"
     affichage["Période analysée"] = nom_periode_analysee(periode_cible)
     affichage["Points de la période"] = affichage["Points période"].apply(formater_nombre)
-    affichage["Écart avec la base"] = affichage["Écart score"].apply(formater_nombre)
+    affichage[colonne_ecart] = affichage["Écart score"].apply(formater_nombre)
     affichage["Alpha critique"] = affichage["Alpha critique"].apply(formater_pourcentage)
     affichage["Variation nécessaire"] = affichage["Variation"].apply(formater_variation)
 
@@ -1015,7 +1017,7 @@ def tableau_sensibilite_affichage(df, periode_cible, avec_rang=False):
         "Période analysée",
         "Coureur",
         "Points de la période",
-        "Écart avec la base",
+        colonne_ecart,
         "Alpha critique",
         "Variation nécessaire",
         "Interprétation",
