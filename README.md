@@ -1,153 +1,169 @@
-# Fantasy Cycling Optimizer
+# Fantasy Cyclisme - Optimisation d'équipe
 
-Application d'aide à la décision pour optimiser une équipe de fantasy cyclisme avec Python, programmation linéaire entière, Streamlit et analyse de Pareto.
+Application d'aide à la décision pour composer une équipe de fantasy cyclisme à partir des résultats du Tour de France. Le projet utilise un modèle de programmation linéaire en nombres entiers pour sélectionner les coureurs, gérer les abandons et analyser la robustesse des choix obtenus.
 
-Ce projet optimise la sélection d'une équipe de fantasy cyclisme sous contraintes réalistes : budget limité, taille d'équipe imposée, abandons de coureurs, périodes de transferts et surcoût lors des achats. Il a été développé dans le cadre du Master AI2D à Sorbonne Université.
+Ce travail a été réalisé dans le cadre du Master AI2D à Sorbonne Université.
 
-## Présentation
+## Objectif
 
-Les jeux de fantasy cyclisme consistent à composer une équipe de coureurs capable de marquer un maximum de points tout en respectant un budget. Le problème devient plus complexe lorsque certains coureurs abandonnent, que les transferts ne sont autorisés qu'à des périodes précises, et que les nouveaux achats coûtent plus cher pendant ces fenêtres.
+Dans un jeu de fantasy cyclisme, il faut choisir une équipe de coureurs capable de marquer le plus de points possible tout en respectant un budget. Le problème devient plus difficile lorsque des coureurs abandonnent, que les transferts sont possibles seulement à certains moments et que les achats en cours de Tour sont plus chers.
 
-Cette application modélise ce problème comme une tâche d'optimisation et propose une interface interactive pour explorer les meilleures compositions d'équipe, les transferts, les analyses de sensibilité et les simulations de scénarios.
+L'objectif du projet est donc double :
+
+- trouver une équipe optimale sous contraintes de budget, de taille d'équipe et de disponibilité des coureurs ;
+- proposer des outils d'analyse pour comprendre pourquoi certains coureurs sont choisis, exclus ou proches de la solution optimale.
 
 ## Fonctionnalités
 
-- Optimisation de la sélection d'équipe sous contraintes de budget et de taille.
-- Gestion de plusieurs périodes de course.
-- Prise en compte des transferts entre les périodes.
-- Modélisation d'un surcoût lors de l'achat d'un coureur en transfert.
-- Gestion des abandons de coureurs.
-- Résolution du problème avec PuLP et le solveur CBC.
+- Optimisation d'une équipe de fantasy cyclisme avec PuLP et le solveur CBC.
+- Gestion de trois périodes de décision : début du Tour, après l'étape 10 et après l'étape 15.
+- Prise en compte des abandons de coureurs.
+- Gestion des achats et ventes lors des transferts.
+- Surcoût de 10 % pour les achats effectués en période de transfert.
 - Comparaison entre une stratégie avec transferts et une stratégie sans transfert.
-- Analyse de sensibilité pour comprendre pourquoi un coureur est sélectionné ou exclu.
-- Simulation de scénarios en perturbant les points, les coûts et la taille d'équipe.
-- Visualisation des couches de Pareto et analyses post-optimales.
-- Export des tableaux de résultats depuis l'interface Streamlit.
+- Affichage des équipes sélectionnées par période.
+- Détail des transferts, budgets restants, points par étape et bonus finaux.
+- Analyse de la dernière période avec ratios points/prix, points/coût de transfert et couches de Pareto.
+- Analyse de sensibilité des points pour repérer les coureurs robustes ou proches d'entrer dans l'équipe.
+- Simulation Monte Carlo, appelée "Facteur Chance", pour tester la stabilité des sélections lorsque les points, les coûts et la taille d'équipe varient.
+- Export CSV des résultats d'analyse.
 
-## Stack technique
-
-- Python
-- Streamlit
-- PuLP / CBC
-- Pandas
-- NumPy
-- Matplotlib
-- Seaborn
-- Altair
-
-## Structure du projet
+## Structure du dépôt
 
 ```text
 .
-|-- app_pulp.py              # Application Streamlit principale et modèle PuLP
-|-- trait_donnees.py         # Préparation des données et calcul des points fantasy
-|-- analyse_budget.py        # Outils d'analyse du budget et des scores
-|-- Affichage_Pareto.py      # Expérimentations de visualisation Pareto
-|-- tdf_rankings/            # Fichiers CSV d'entrée : étapes, maillots, classement final
-|-- Analyse_Pareto/          # Scripts d'exploration Pareto et données enrichies
-|-- Graphe_profit_sur_cout/  # Graphiques générés coût / profit
-|-- doc/                     # Cahier des charges et contraintes mathématiques
-|-- pyproject.toml           # Dépendances du projet
-`-- uv.lock                  # Versions verrouillées des dépendances
+|-- app_pulp.py           # Application Streamlit et modèle d'optimisation PuLP
+|-- trait_donnees.py      # Lecture des données et calcul des points fantasy
+|-- tdf_rankings/         # Données d'entrée du Tour de France
+|-- doc/                  # Documents du projet
+|-- anciennes_versions/   # Anciens scripts et prototypes conservés à part
+|-- requirements.txt      # Dépendances Python à installer avec pip
+|-- README.md             # Présentation et mode d'emploi du projet
+|-- .gitignore            # Fichiers ignorés par Git
+`-- .python-version       # Version Python utilisée pour le projet
 ```
+
+## Fichiers principaux
+
+`app_pulp.py` contient l'application Streamlit. C'est le fichier à lancer pour utiliser l'interface. Il construit le modèle d'optimisation, résout le problème avec PuLP/CBC, affiche les résultats et lance les analyses post-optimales.
+
+`trait_donnees.py` prépare les données utilisées par le modèle. Il lit les fichiers CSV du dossier `tdf_rankings/`, calcule les points obtenus par les coureurs sur les étapes, ajoute les bonus de maillots, la combativité et les points du classement final.
+
+`tdf_rankings/` contient les données d'entrée :
+
+- `valeurs.csv` : coût des coureurs ;
+- `stage_01_2025.csv` à `stage_21_2025.csv` : résultats des étapes ;
+- `maillots.csv` : bonus liés aux maillots et à la combativité ;
+- `final.csv` : bonus du classement final.
+
+`anciennes_versions/` regroupe les anciens scripts du projet. Ils sont gardés pour mémoire, mais l'application finale se lance depuis `app_pulp.py`.
 
 ## Installation
 
-### Avec uv
+Le projet utilise Python 3.11.
 
-```bash
-uv sync
-```
+Créer un environnement virtuel :
 
-Puis lancer l'application :
-
-```bash
-uv run streamlit run app_pulp.py
-```
-
-### Avec pip
-
-```bash
+```powershell
 python -m venv .venv
-source .venv/bin/activate
-pip install pandas pulp streamlit "altair<5" matplotlib seaborn
-streamlit run app_pulp.py
 ```
 
-Sous Windows PowerShell, activer l'environnement virtuel avec :
+Activer l'environnement sous Windows PowerShell :
 
 ```powershell
 .\.venv\Scripts\Activate.ps1
 ```
 
+Installer les dépendances :
+
+```powershell
+pip install -r requirements.txt
+```
+
+Les dépendances principales sont :
+
+- `streamlit` pour l'interface ;
+- `pandas` pour la manipulation des données ;
+- `pulp` pour l'optimisation linéaire entière ;
+- `matplotlib` pour les graphiques.
+
+## Lancement
+
+Depuis la racine du projet :
+
+```powershell
+streamlit run app_pulp.py
+```
+
+L'application s'ouvre ensuite dans le navigateur.
+
 ## Utilisation
 
-1. Lancer l'application Streamlit :
+Dans la barre latérale, l'utilisateur peut régler :
 
-   ```bash
-   streamlit run app_pulp.py
-   ```
+- le budget initial ;
+- la taille de l'équipe ;
+- le nombre de scénarios pour la simulation Monte Carlo ;
+- l'écart-type appliqué aux points ;
+- l'écart-type appliqué aux coûts ;
+- l'écart-type appliqué à la taille d'équipe ;
+- la graine aléatoire de simulation.
 
-2. Régler les paramètres principaux dans la barre latérale :
+Trois actions principales sont disponibles :
 
-   - budget initial
-   - taille de l'équipe
-   - nombre de scénarios de simulation
-   - incertitude sur les points, les coûts et la taille d'équipe
+- `Analyse classique avec transferts` : résout le modèle avec transferts autorisés après les abandons ;
+- `Analyse sans transfert` : résout le modèle en gardant la même équipe sur toute la course ;
+- `Lancer les simulations` : génère plusieurs scénarios perturbés pour analyser la stabilité des choix.
 
-3. Lancer une analyse :
+Les résultats sont organisés en onglets :
 
-   - optimisation classique avec transferts
-   - optimisation sans transfert
-   - simulation de scénarios aléatoires
-
-4. Explorer les onglets de résultats :
-
-   - équipes sélectionnées par période
-   - transferts entre périodes
-   - points et scores
-   - histogrammes et analyse de Pareto
-   - analyse de sensibilité des points
-   - tables exportables
+- `Équipes` : composition retenue à chaque période ;
+- `Transferts` : coureurs entrants, sortants et flux financiers ;
+- `Points et scores` : détail des points par coureur et par étape ;
+- `Histogrammes P15` : indicateurs points/prix, points/coût de transfert et couches de Pareto ;
+- `Sensibilité points` : seuils de baisse ou de hausse nécessaires pour modifier la solution ;
+- `Export analyse` : téléchargement des données d'analyse au format CSV.
 
 ## Modèle d'optimisation
 
 Le problème est formulé comme un programme linéaire en nombres entiers.
 
-Le modèle décide si chaque coureur est sélectionné à chaque période. L'objectif est de maximiser le nombre total de points fantasy tout en respectant plusieurs contraintes :
+Le modèle choisit les coureurs sélectionnés à chaque période :
 
-- une équipe valide à chaque période
-- un nombre fixe de coureurs sélectionnés
-- une contrainte de budget initial
-- une mise à jour du budget après les ventes et les achats
-- l'impossibilité de sélectionner un coureur indisponible après abandon
-- la cohérence entre sélection, achat et vente de coureurs
+- période 0 : étapes 1 à 10 ;
+- période 10 : étapes 11 à 15 ;
+- période 15 : étapes 16 à 21, avec ajout des bonus du classement final.
+
+L'objectif est de maximiser le score total de l'équipe.
+
+Les contraintes principales sont :
+
+- respecter la taille d'équipe demandée à chaque période ;
+- respecter le budget initial ;
+- mettre à jour le budget après chaque achat et chaque vente ;
+- empêcher la sélection d'un coureur après son abandon ;
+- assurer la cohérence entre présence dans l'équipe, achat et vente ;
+- interdire les transferts dans le mode "sans transfert".
 
 Les principales variables de décision sont :
 
-- `x[p][t]` : le coureur `p` est sélectionné à la période `t`
-- `achat[p][t]` : le coureur `p` est acheté à la période `t`
-- `vente[p][t]` : le coureur `p` est vendu à la période `t`
-- `budget[t]` : budget restant à la période `t`
+- `x[p][t]` : vaut 1 si le coureur `p` est sélectionné à la période `t` ;
+- `achat[p][t]` : vaut 1 si le coureur `p` est acheté à la période `t` ;
+- `vente[p][t]` : vaut 1 si le coureur `p` est vendu à la période `t` ;
+- `budget[t]` : budget restant à la période `t`.
 
-## Données
+## Analyses post-optimales
 
-Le projet utilise des données du Tour de France stockées dans le dossier `tdf_rankings/`.
+L'analyse de sensibilité mesure la stabilité d'un coureur dans la solution. Pour un coureur sélectionné, elle estime la baisse de points nécessaire pour qu'il sorte de l'équipe. Pour un coureur non sélectionné, elle estime la hausse de points nécessaire pour qu'il devienne intéressant.
 
-Le calcul des scores combine :
+Les couches de Pareto permettent de comparer les coureurs de la dernière période selon deux critères : le coût et les points comptés. Un coureur en couche 1 n'est dominé par aucun autre coureur selon ces deux critères.
 
-- les classements d'étapes
-- les bonus de maillots
-- les bonus de combativité
-- les bonus du classement final
-- les valeurs des coureurs
+La simulation Monte Carlo perturbe les points, les coûts et la taille d'équipe. Elle permet de repérer les coureurs qui restent souvent sélectionnés malgré l'incertitude, ainsi que ceux qui deviennent intéressants seulement dans certains scénarios favorables.
 
-La préparation des données et le dictionnaire de points sont centralisés dans `trait_donnees.py`.
+## Remarque sur les données
+
+Les fichiers CSV nécessaires au calcul sont fournis dans `tdf_rankings/`. Si le projet est déplacé sur une autre machine, il faut vérifier que `trait_donnees.py` pointe bien vers ce dossier de données.
 
 ## Contexte académique
 
-Ce projet a été développé dans le cadre du Master AI2D à Sorbonne Université. Il combine optimisation, analyse de données et interface d'aide à la décision autour d'un cas d'usage concret en sport analytics.
-
-## Description courte
-
-Application d'aide à la décision pour optimiser une équipe de fantasy cyclisme sous contraintes de budget, transferts et abandons, avec Python, PuLP, Streamlit et analyse de Pareto.
+Ce projet combine optimisation, analyse de données et interface interactive autour d'un cas d'usage concret en sport analytics. Il illustre comment un modèle de programmation linéaire peut être complété par des outils d'analyse pour transformer une solution optimale en véritable aide à la décision.
